@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import ReactTogetherWrapper from "@/components/ReactTogetherWrapper";
 
 const Counter = dynamic(
   () => import("@/components/Counter").then((mod) => mod.Counter),
@@ -18,8 +19,10 @@ const CreateRandomSessionButton = dynamic(
 export default function Home() {
   return (
     <main>
-      <Counter />
-      <CreateRandomSessionButton />
+      <ReactTogetherWrapper>
+        <Counter />
+        <CreateRandomSessionButton />
+      </ReactTogetherWrapper>
     </main>
   );
 }

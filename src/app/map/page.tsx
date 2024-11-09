@@ -1,5 +1,6 @@
 "use client";
 
+import ReactTogetherWrapper from "@/components/ReactTogetherWrapper";
 import dynamic from "next/dynamic";
 
 const MapComponent = dynamic(
@@ -10,7 +11,9 @@ const MapComponent = dynamic(
 export default function MapPage() {
   return (
     <main>
-      <MapComponent />
+      <ReactTogetherWrapper>
+        <MapComponent />
+      </ReactTogetherWrapper>
     </main>
   );
 }
