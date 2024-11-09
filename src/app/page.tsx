@@ -9,10 +9,10 @@ import { motion } from "framer-motion";
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Floating Icons Background - Updated positions and opacity */}
+      {/* Floating Icons Background - Much higher opacity */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div 
-          className="absolute top-[15%] left-[5%]"
+          className="absolute top-[10%] left-[10%] hidden sm:block"
           animate={{ 
             y: [0, 20, 0], 
             x: [0, 10, 0],
@@ -24,10 +24,10 @@ export default function LandingPage() {
             ease: "easeInOut" 
           }}
         >
-          <MapPin className="h-16 w-16 text-primary/10" />
+          <MapPin className="h-16 w-16 text-primary/70" />
         </motion.div>
         <motion.div 
-          className="absolute top-[20%] right-[10%]"
+          className="absolute top-[15%] right-[15%] hidden sm:block"
           animate={{ 
             y: [0, -15, 0],
             x: [0, -10, 0],
@@ -40,10 +40,10 @@ export default function LandingPage() {
             delay: 1
           }}
         >
-          <Calendar className="h-20 w-20 text-primary/5" />
+          <Calendar className="h-20 w-20 text-primary/65" />
         </motion.div>
         <motion.div 
-          className="absolute bottom-[30%] left-[15%]"
+          className="absolute top-[60%] right-[5%] sm:bottom-[30%] sm:left-[15%]"
           animate={{ 
             y: [0, 10, 0],
             x: [0, 5, 0],
@@ -56,7 +56,7 @@ export default function LandingPage() {
             delay: 2
           }}
         >
-          <Share2 className="h-12 w-12 text-primary/8" />
+          <Share2 className="h-12 w-12 text-primary/60" />
         </motion.div>
       </div>
 
