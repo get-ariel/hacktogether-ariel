@@ -29,7 +29,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReactTogetherWrapper>{children}</ReactTogetherWrapper>
+        {/* <ReactTogetherWrapper>{children}</ReactTogetherWrapper> */}
+        {children}
       </body>
     </html>
   );
