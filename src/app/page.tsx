@@ -7,10 +7,16 @@ const Counter = dynamic(
   { ssr: false }
 );
 
+const Cursor = dynamic(
+  () => import("../components/Cursor").then((mod) => mod.Cursor),
+  { ssr: false }
+);
+
 export default function Home() {
   return (
     <main>
       <Counter />
+      <Cursor />
     </main>
   );
 }
