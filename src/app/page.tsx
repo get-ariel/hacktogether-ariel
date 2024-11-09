@@ -79,7 +79,7 @@ export default function LandingPage() {
                 <Users className="h-8 w-8 text-primary" />
                 <h3 className="text-xl font-bold">Real-time Collaboration</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                  Plan together in real-time, see each other's changes
+                  Plan together in real-time, see each other&apos;s changes
                   instantly.
                 </p>
               </div>
