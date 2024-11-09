@@ -1,10 +1,11 @@
 "use client";
 
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import { Cursor } from "@/components/Cursor";
 
 export function MapComponent() {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
-  console.log("API_KEY:", API_KEY);
+
   return (
     <APIProvider apiKey={API_KEY}>
       <Map
@@ -13,7 +14,9 @@ export function MapComponent() {
         defaultZoom={10}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
-      ></Map>
+      >
+        <Cursor />
+      </Map>
     </APIProvider>
   );
 }
