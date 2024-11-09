@@ -94,29 +94,32 @@ export function Cursor() {
           >
             <div
               style={{
+                width: "12px",
+                height: "12px",
+                transform: "translate(-50%, -50%)",
+                pointerEvents: "none",
+                position: "absolute",
+                zIndex: 9999,
+                backgroundColor:
+                  position?.color || `hsl(${Math.random() * 360}, 70%, 50%)`,
+                borderRadius: "50%",
+                border: "1px solid black",
+              }}
+            />
+            <div
+              style={{
                 padding: "2px 8px",
                 backgroundColor: "rgba(0,0,0,0.8)",
                 color: "white",
                 borderRadius: "4px",
                 fontSize: "12px",
-                marginBottom: "4px",
                 whiteSpace: "nowrap",
+                transform: "translate(16px, 16px)",
+                zIndex: 9999,
               }}
             >
               {user?.name || "Anonymous"}
             </div>
-            <div
-              style={{
-                width: "12px",
-                height: "12px",
-                backgroundColor:
-                  position?.color || `hsl(${Math.random() * 360}, 70%, 50%)`,
-                borderRadius: "50%",
-                transform: "translate(-50%, -50%)",
-                transition: "all 0.1s ease-out",
-                boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-              }}
-            />
           </div>
         );
       })}
