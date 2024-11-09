@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
+  output: "export",
   webpack: (config, { isServer }) => {
     config.optimization = {
       ...config.optimization,
@@ -28,7 +29,6 @@ const nextConfig = {
     };
     return config;
   },
-  output: "standalone",
 };
 
 export default nextConfig;
