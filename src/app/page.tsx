@@ -7,10 +7,19 @@ const Counter = dynamic(
   { ssr: false }
 );
 
+const CreateRandomSessionButton = dynamic(
+  () =>
+    import("../components/CreateRandomSessionButton").then(
+      (mod) => mod.CreateRandomSessionButton
+    ),
+  { ssr: false }
+);
+
 export default function Home() {
   return (
     <main>
       <Counter />
+      <CreateRandomSessionButton />
     </main>
   );
 }
