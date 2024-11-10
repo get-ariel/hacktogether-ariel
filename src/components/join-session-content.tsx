@@ -7,22 +7,19 @@ import { Input } from "@/components/ui/input";
 import { useJoinUrl } from "react-together";
 
 export default function JoinSessionContent() {
-  const [joinUrlState, setJoinUrlState] = useState<string>("");
   const [name, setName] = useState("");
   const router = useRouter();
-  const joinUrl = useJoinUrl();
-
-  useEffect(() => {
-    if (joinUrl) {
-      setJoinUrlState(joinUrl);
-    }
-  }, [joinUrl]);
+  const joinUrl = useJoinUrl() || "";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    const queryParams = joinUrlState.split("?")[1];
-    router.push(`/dashboard${queryParams ? `?${queryParams}` : ""}`);
+    if (!name) return;
+  };
+
+  const joinSession = () => {
+    router.push(
+      `/dashboard${joinUrl.split("?")[1] ? `?${joinUrl.split("?")[1]}` : ""}`
+    );
   };
 
   return (
@@ -41,6 +38,7 @@ export default function JoinSessionContent() {
         />
         <Button
           type="submit"
+          onClick={joinSession}
           className="w-full bg-[#e56f5f] hover:bg-[#e56f5f]/90 text-white"
         >
           Join

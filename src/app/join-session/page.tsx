@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Dynamically import the component that uses react-together
 const JoinSessionContent = dynamic(
   () => import("@/components/join-session-content"),
   {
