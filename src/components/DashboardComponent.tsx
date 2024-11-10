@@ -194,9 +194,27 @@ export function DashboardComponent() {
     []
   );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tripCity] = useStateTogether<string>(
+    "trip-city",
+    (() => {
+      try {
+        const stored = localStorage.getItem("tripDetails");
+        return stored ? JSON.parse(stored).city : "New York";
+      } catch {
+        return "New York";
+      }
+    })()
+  );
   const [tripTitle, setTripTitle] = useStateTogether<string>(
     "trip-title",
-    "US power trip 2025 🇺🇸"
+    (() => {
+      try {
+        const stored = localStorage.getItem("tripDetails");
+        return stored ? JSON.parse(stored).title : `${tripCity} Trip ✈️`;
+      } catch {
+        return `${tripCity} Trip ✈️`;
+      }
+    })()
   );
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -453,14 +471,19 @@ export function DashboardComponent() {
     return Object.values(userNamesPerUser);
   };
 
+  // Update the tripTitle state to use the city
+  useEffect(() => {
+    setTripTitle(`${tripCity} Trip ✈️`);
+  }, [tripCity, setTripTitle]);
+
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
       <aside className="w-64 border-r flex flex-col">
         <div className="h-[88px] flex items-center px-6 border-b">
           <Link href="/" className="flex items-center">
-            <MapPin className="h-6 w-6 text-primary" />
-            <span className="ml-2 text-xl font-bold text-primary">
+            <MapPin className="h-7 w-7 text-primary" />
+            <span className="ml-2 text-2xl font-bold text-primary">
               TripSync
             </span>
           </Link>
