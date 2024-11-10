@@ -25,11 +25,7 @@ export function CreateRandomSessionButton({
       <Button
         type="submit"
         className={`w-full py-3 px-4 rounded-lg text-white text-lg font-medium
-          ${
-            disabled
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-primary hover:bg-primary/90"
-          }`}
+          ${disabled ? "bg-primary" : "bg-primary hover:bg-primary/90"}`}
         onClick={handleClick}
         disabled={disabled}
       >
