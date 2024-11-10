@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-// import { useToast } from "@/hooks/use-toast";
 import toast from "react-hot-toast";
 import { usePathname } from "next/navigation";
 
