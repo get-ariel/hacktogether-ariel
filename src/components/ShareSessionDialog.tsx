@@ -8,9 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { useJoinUrl } from "react-together";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface ShareSessionDialogProps {
   isOpen: boolean;
@@ -22,7 +22,6 @@ export function ShareSessionDialog({
   onOpenChange,
 }: ShareSessionDialogProps) {
   const joinUrl = useJoinUrl() || "";
-  const { toast } = useToast();
   const router = useRouter();
 
   const copyToClipboard = async () => {
@@ -32,10 +31,7 @@ export function ShareSessionDialog({
           joinUrl.split("?")[1] ? `?${joinUrl.split("?")[1]}` : ""
         }`
     );
-    toast({
-      description: "Link copied to clipboard!",
-      duration: 2000,
-    });
+    toast.success("Link copied to clipboard!");
   };
 
   const joinSession = () => {
