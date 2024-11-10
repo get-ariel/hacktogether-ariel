@@ -106,7 +106,8 @@ export function MapComponent(): JSX.Element {
         inputRef.current!,
         {
           fields: ["geometry", "name", "formatted_address", "place_id"],
-          strictBounds: true,
+          strictBounds: false,
+          bounds: map?.getBounds() || undefined,
         }
       );
       autocompleteRef.current = autocomplete;
