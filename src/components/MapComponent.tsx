@@ -15,18 +15,22 @@ import { Cursor } from "@/components/Cursor";
 import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 
-export function MapComponent(): JSX.Element {
+interface MapComponentProps {
+  onSavePoi?: (poi: PoiInfo) => void;
+}
+
+interface PoiInfo {
+  position: google.maps.LatLngLiteral;
+  name: string;
+  address: string;
+  website?: string;
+  photoUrl?: string | null;
+}
+
+export function MapComponent({ onSavePoi }: MapComponentProps): JSX.Element {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const [infoWindowShown, setInfoWindowShown] = useState(false);
   const [markerRef, marker] = useAdvancedMarkerRef();
-
-  interface PoiInfo {
-    position: google.maps.LatLngLiteral;
-    name: string;
-    address: string;
-    website?: string;
-    photoUrl?: string | null;
-  }
 
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
   const [zoom, setZoom] = useState(10);
@@ -209,6 +213,15 @@ export function MapComponent(): JSX.Element {
     );
   }
 
+  // Add handler for saving POI
+  const handleSavePoi = useCallback(
+    (poi: PoiInfo) => {
+      onSavePoi?.(poi);
+      handleInfoWindowClose();
+    },
+    [onSavePoi, handleInfoWindowClose]
+  );
+
   return (
     <APIProvider apiKey={API_KEY} libraries={["places"]}>
       <div className="relative h-full w-full">
@@ -296,10 +309,10 @@ export function MapComponent(): JSX.Element {
                     </a>
                   )}
                   <button
-                    onClick={() => alert("Button clicked!")}
-                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
+                    onClick={() => handleSavePoi(poiInfo)}
+                    className="w-full py-2 px-4 bg-[#e56f5f] hover:bg-[#e56f5f]/90 text-white text-sm font-medium rounded-lg transition duration-200"
                   >
-                    Custom Button
+                    Add to Trip
                   </button>
                 </div>
               </div>

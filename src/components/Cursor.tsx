@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   useStateTogetherWithPerUserValues,
   useLeaveSession,
@@ -33,6 +33,15 @@ export function Cursor() {
       }
     );
 
+  const [mapBounds, setMapBounds] = useState<{
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  } | null>(null);
+
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (!map) return;
 
@@ -43,27 +52,55 @@ export function Cursor() {
     overlay.setMap(map);
     setOverlayView(overlay);
 
+    const updateMapBounds = () => {
+      const mapDiv = map.getDiv();
+      const rect = mapDiv.getBoundingClientRect();
+      setMapBounds({
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+      });
+    };
+
+    updateMapBounds();
+    map.addListener("idle", updateMapBounds);
+    window.addEventListener("resize", updateMapBounds);
+
     return () => {
       overlay.setMap(null);
+      window.removeEventListener("resize", updateMapBounds);
+      google.maps.event.clearListeners(map, "idle");
     };
   }, [map]);
 
   useEffect(() => {
     let lastUpdate = 0;
-    const THROTTLE_MS = 16; // ~60fps
+    const THROTTLE_MS = 16;
 
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();
       if (now - lastUpdate >= THROTTLE_MS) {
-        if (!overlayView || !overlayView.getProjection()) {
+        if (!overlayView || !overlayView.getProjection() || !mapBounds) {
+          return;
+        }
+
+        const x = e.clientX - mapBounds.left;
+        const y = e.clientY - mapBounds.top;
+
+        if (
+          x < 0 ||
+          x > mapBounds.right - mapBounds.left ||
+          y < 0 ||
+          y > mapBounds.bottom - mapBounds.top
+        ) {
           return;
         }
 
         const projection = overlayView.getProjection();
-        const google = window.google;
+        const point = new google.maps.Point(x, y);
+        const latLng = projection.fromContainerPixelToLatLng(point);
 
-        const pixel = new google.maps.Point(e.clientX, e.clientY);
-        const latLng = projection.fromContainerPixelToLatLng(pixel);
         if (!latLng) return;
 
         const position = {
@@ -77,23 +114,27 @@ export function Cursor() {
       }
     };
 
-    const handleBeforeUnload = () => {
-      leaveSession();
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    const mapContainer = map?.getDiv();
+    if (mapContainer) {
+      mapContainer.addEventListener("mousemove", handleMouseMove);
+    }
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      if (mapContainer) {
+        mapContainer.removeEventListener("mousemove", handleMouseMove);
+      }
     };
-  }, [setSharedValue, leaveSession, sharedValue.color, overlayView]);
+  }, [setSharedValue, sharedValue.color, overlayView, mapBounds, map]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
       {Object.entries(userValues || {}).map(([userId, position]) => {
-        if (userId === myId || !overlayView || !overlayView.getProjection())
+        if (
+          userId === myId ||
+          !overlayView ||
+          !overlayView.getProjection() ||
+          !mapBounds
+        )
           return null;
 
         const projection = overlayView.getProjection();
@@ -102,20 +143,47 @@ export function Cursor() {
 
         if (!pixel) return null;
 
+        const relativeX = pixel.x;
+        const relativeY = pixel.y;
+
+        const cursorSize = 4; // Half of the cursor width (8px/2)
+        const labelHeight = 24; // Approximate height of the label
+        const labelWidth = 100; // Approximate max width of the label
+
+        // Check if cursor is within map bounds with minimal padding
+        if (
+          relativeX < cursorSize ||
+          relativeX > mapBounds.right - mapBounds.left - cursorSize ||
+          relativeY < cursorSize ||
+          relativeY >
+            mapBounds.bottom - mapBounds.top - (cursorSize + labelHeight)
+        ) {
+          return null;
+        }
+
         const user = connectedUsers.find((u) => u.userId === userId);
+
+        // Determine label position (above or below cursor) based on Y position
+        const isNearBottom =
+          relativeY > mapBounds.bottom - mapBounds.top - labelHeight - 20;
+        const labelTransform = isNearBottom
+          ? "translate(8px, -24px)"
+          : "translate(8px, 8px)";
+
         return (
           <div
             key={userId}
             style={{
               position: "absolute",
-              left: pixel.x,
-              top: pixel.y,
+              left: relativeX,
+              top: relativeY,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               pointerEvents: "none",
             }}
           >
+            {/* Cursor dot */}
             <div
               style={{
                 width: "8px",
@@ -130,6 +198,7 @@ export function Cursor() {
                 border: "1px solid black",
               }}
             />
+            {/* Label */}
             <div
               style={{
                 padding: "2px 8px",
@@ -138,8 +207,11 @@ export function Cursor() {
                 borderRadius: "4px",
                 fontSize: "12px",
                 whiteSpace: "nowrap",
-                transform: "translate(8px, 8px)",
+                transform: labelTransform,
                 zIndex: 9999,
+                maxWidth: `${labelWidth}px`,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
               {user?.name || "Anonymous"}
