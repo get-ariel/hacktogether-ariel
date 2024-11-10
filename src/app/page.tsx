@@ -134,7 +134,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Real-time Collaboration</h3>
                 <p className="text-foreground/60">
-                  Plan together in real-time, see each other's changes instantly.
+                  Plan together in real-time, see each other&apos;s changes instantly.
                 </p>
               </div>
 
