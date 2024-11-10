@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useStateTogetherWithPerUserValues,
-  useLeaveSession,
   useConnectedUsers,
   useMyId,
 } from "react-together";
@@ -19,7 +18,6 @@ export function Cursor() {
   const map = useMap();
   const [overlayView, setOverlayView] =
     useState<google.maps.OverlayView | null>(null);
-  const leaveSession = useLeaveSession();
   const connectedUsers = useConnectedUsers();
   const myId = useMyId();
 
@@ -39,8 +37,6 @@ export function Cursor() {
     right: number;
     bottom: number;
   } | null>(null);
-
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!map) return;

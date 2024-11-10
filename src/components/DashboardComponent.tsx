@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format, addDays, subDays } from "date-fns";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MapComponent } from "@/components/MapComponent";
 import {
   useStateTogether,
@@ -33,6 +33,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface TripLocation {
   id: string;
@@ -157,9 +158,6 @@ function DateRangeSelector({
 }
 
 export function DashboardComponent() {
-  const [selectedDate, setSelectedDate] = useState<Date>(
-    new Date("2024-04-11")
-  );
   const [tripDates, setTripDates] = useStateTogether<{
     start: string;
     end: string;
@@ -167,11 +165,21 @@ export function DashboardComponent() {
     start: "2024-04-11",
     end: "2024-04-25",
   });
+
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const initialDate = new Date("2024-04-11");
+    const startDate = new Date(tripDates.start);
+    const endDate = new Date(tripDates.end);
+
+    if (initialDate < startDate) return startDate;
+    if (initialDate > endDate) return endDate;
+    return initialDate;
+  });
+
   const [locations, setLocations] = useStateTogether<TripLocation[]>(
     "trip-locations",
     []
   );
-  const myId = "3"; // Mock user ID
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tripTitle, setTripTitle] = useStateTogether<string>(
     "trip-title",
@@ -355,8 +363,16 @@ export function DashboardComponent() {
   // Add this helper function to generate a unique ID
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
-  // Update the MapComponent handler
-  const handleSavePoi = (poi: any) => {
+  // Fix the any type in handleSavePoi
+  interface PoiData {
+    name: string;
+    address: string;
+    photoUrl?: string | null;
+    website?: string;
+  }
+
+  // Update the handler signature
+  const handleSavePoi = (poi: PoiData) => {
     const newLocation: TripLocation = {
       id: generateId(),
       name: poi.name || "New Location",
@@ -368,6 +384,31 @@ export function DashboardComponent() {
     };
 
     setLocations([...locations, newLocation]);
+  };
+
+  useEffect(() => {
+    const startDate = new Date(tripDates.start);
+    const endDate = new Date(tripDates.end);
+
+    if (selectedDate < startDate) {
+      setSelectedDate(startDate);
+    } else if (selectedDate > endDate) {
+      setSelectedDate(endDate);
+    }
+  }, [tripDates.start, tripDates.end]);
+
+  const handlePreviousDay = () => {
+    const newDate = subDays(selectedDate, 1);
+    if (format(newDate, "yyyy-MM-dd") >= tripDates.start) {
+      setSelectedDate(newDate);
+    }
+  };
+
+  const handleNextDay = () => {
+    const newDate = addDays(selectedDate, 1);
+    if (format(newDate, "yyyy-MM-dd") <= tripDates.end) {
+      setSelectedDate(newDate);
+    }
   };
 
   return (
@@ -488,11 +529,10 @@ export function DashboardComponent() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => {
-                    const newDate = subDays(selectedDate, 1);
-                    setSelectedDate(newDate);
-                  }}
-                  disabled={selectedDate <= new Date(tripDates.start)}
+                  onClick={handlePreviousDay}
+                  disabled={
+                    format(selectedDate, "yyyy-MM-dd") <= tripDates.start
+                  }
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -507,11 +547,8 @@ export function DashboardComponent() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => {
-                    const newDate = addDays(selectedDate, 1);
-                    setSelectedDate(newDate);
-                  }}
-                  disabled={selectedDate >= new Date(tripDates.end)}
+                  onClick={handleNextDay}
+                  disabled={format(selectedDate, "yyyy-MM-dd") >= tripDates.end}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -524,9 +561,11 @@ export function DashboardComponent() {
                   key={location.id}
                   className="relative overflow-hidden rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-all"
                 >
-                  <img
+                  <Image
                     src={location.image}
                     alt={location.name}
+                    width={800}
+                    height={600}
                     className="object-cover w-full h-48 transition-transform duration-300 hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
