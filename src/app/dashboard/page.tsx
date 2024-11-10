@@ -1,40 +1,82 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, FileText, Share2, Download, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, FileText, Share2, Download, ChevronRight, ChevronLeft, ThumbsUp, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { format, addDays, subDays } from "date-fns";
+import { useState } from "react";
 
-interface TripMember {
-  name: string;
-  color: string;
-}
-
-interface Location {
+interface TripLocation {
+  id: string;
   name: string;
   address: string;
   image: string;
+  likes: string[]; // array of user IDs who liked
+  date: string; // ISO string
+  order: number;
 }
 
-export default function DashboardPage() {
-  // Mock data
-  const tripMembers: TripMember[] = [
-    { name: "Ana Sofia", color: "#FFD700" },
-    { name: "Bruno Sena", color: "#FF6B6B" },
-    { name: "João Pedro (You)", color: "#4CAF50" },
-  ];
+const INITIAL_LOCATIONS: TripLocation[] = [
+  {
+    id: "1",
+    name: "Madison Square",
+    address: "Avenue 13, St avenue",
+    image: "https://welcome-to-times-square.com/wp-content/uploads/2024/03/madison-square-garden-newyorkbyrail-com_89_0_867_539.webp",
+    likes: [],
+    date: "2024-04-11",
+    order: 0
+  },
+  {
+    id: "2",
+    name: "Empire State Building",
+    address: "Avenue 165th, St et 3",
+    image: "https://lh3.googleusercontent.com/p/AF1QipOXaWSrMF4ixVBuqVK_n3-9lMKS0OSGdkDEN0Db=s1360-w1360-h1020",
+    likes: [],
+    date: "2024-04-11",
+    order: 1
+  }
+];
 
-  const locations: Location[] = [
-    {
-      name: "Madison Square",
-      address: "Avenue 13, St avenue",
-      image: "https://welcome-to-times-square.com/wp-content/uploads/2024/03/madison-square-garden-newyorkbyrail-com_89_0_867_539.webp"
-    },
-    {
-      name: "Empire State Building",
-      address: "Avenue 165th, St et 3",
-      image: "https://lh3.googleusercontent.com/p/AF1QipOXaWSrMF4ixVBuqVK_n3-9lMKS0OSGdkDEN0Db=s1360-w1360-h1020"
-    }
-  ];
+// Mock trip members instead of using useConnectedUsers
+const MOCK_USERS = [
+  { userId: "1", name: "Ana Sofia", isYou: false },
+  { userId: "2", name: "Bruno Sena", isYou: false },
+  { userId: "3", name: "João Pedro", isYou: true }
+];
+
+function DashboardContent() {
+  const [selectedDate, setSelectedDate] = useState(new Date("2024-04-11"));
+  const [locations, setLocations] = useState<TripLocation[]>(INITIAL_LOCATIONS);
+  const myId = "3"; // Mock user ID
+
+  const handleLike = (locationId: string) => {
+    setLocations(locations.map(loc => {
+      if (loc.id === locationId) {
+        const likes = loc.likes.includes(myId) 
+          ? loc.likes.filter(id => id !== myId)
+          : [...loc.likes, myId];
+        return { ...loc, likes };
+      }
+      return loc;
+    }));
+  };
+
+  const handleDateChange = (direction: 'next' | 'prev') => {
+    setSelectedDate(current => 
+      direction === 'next' ? addDays(current, 1) : subDays(current, 1)
+    );
+  };
+
+  const filteredLocations = locations
+    ?.filter(loc => loc.date === format(selectedDate, 'yyyy-MM-dd'))
+    .sort((a, b) => a.order - b.order) ?? [];
+
+  // Generate random color for each user
+  const getUserColor = (userId: string) => {
+    const colors = ['#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#9C27B0'];
+    const index = parseInt(userId.slice(-3), 16) % colors.length;
+    return colors[index];
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -69,13 +111,15 @@ export default function DashboardPage() {
         <div className="p-4 border-t">
           <h3 className="text-sm font-semibold mb-3">Your Trip Group</h3>
           <div className="space-y-2 mb-4">
-            {tripMembers.map((member, index) => (
-              <div key={index} className="flex items-center">
+            {MOCK_USERS.map((user) => (
+              <div key={user.userId} className="flex items-center">
                 <div 
                   className="w-2 h-2 rounded-full mr-2"
-                  style={{ backgroundColor: member.color }}
+                  style={{ backgroundColor: getUserColor(user.userId) }}
                 />
-                <span className="text-sm">{member.name}</span>
+                <span className="text-sm">
+                  {user.isYou ? `${user.name} (You)` : user.name}
+                </span>
               </div>
             ))}
           </div>
@@ -96,18 +140,21 @@ export default function DashboardPage() {
         {/* Right Sidebar */}
         <aside className="w-96 border-l flex flex-col">
           <div className="p-4 border-b flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">April 11</h2>
-              <p className="text-sm text-foreground/60">Friday</p>
+            <Button variant="ghost" size="icon" onClick={() => handleDateChange('prev')}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold">{format(selectedDate, 'MMMM d')}</h2>
+              <p className="text-sm text-foreground/60">{format(selectedDate, 'EEEE')}</p>
             </div>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => handleDateChange('next')}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
           <div className="flex-1 overflow-auto p-4 space-y-4">
-            {locations.map((location, index) => (
-              <div key={index} className="relative overflow-hidden rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-all">
+            {filteredLocations.map((location) => (
+              <div key={location.id} className="relative overflow-hidden rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-all">
                 <img
                   src={location.image}
                   alt={location.name}
@@ -115,7 +162,27 @@ export default function DashboardPage() {
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-900/80 to-transparent">
                   <h3 className="text-white font-semibold">{location.name}</h3>
-                  <p className="text-white/80 text-sm">{location.address}</p>
+                  <p className="text-white/80 text-sm mb-2">{location.address}</p>
+                  <div className="flex justify-between items-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-white hover:text-primary"
+                      onClick={() => handleLike(location.id)}
+                    >
+                      <ThumbsUp className={`h-4 w-4 mr-2 ${myId && location.likes.includes(myId) ? 'fill-primary' : ''}`} />
+                      {location.likes.length}
+                    </Button>
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.name} ${location.address}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="ghost" size="sm" className="text-white hover:text-primary">
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}
@@ -124,4 +191,8 @@ export default function DashboardPage() {
       </main>
     </div>
   );
+}
+
+export default function DashboardPage() {
+  return <DashboardContent />;
 } 
