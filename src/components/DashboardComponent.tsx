@@ -161,12 +161,22 @@ export function DashboardComponent() {
     start: string;
     end: string;
   }>("trip-dates", {
-    start:
-      JSON.parse(localStorage.getItem("tripDetails") || "{}").dateRange.start ||
-      "",
-    end:
-      JSON.parse(localStorage.getItem("tripDetails") || "{}").dateRange.end ||
-      "",
+    start: (() => {
+      try {
+        const stored = localStorage.getItem("tripDetails");
+        return stored ? JSON.parse(stored).dateRange?.start : "2024-04-11";
+      } catch {
+        return "2024-11-09";
+      }
+    })(),
+    end: (() => {
+      try {
+        const stored = localStorage.getItem("tripDetails");
+        return stored ? JSON.parse(stored).dateRange?.end : "2024-04-18";
+      } catch {
+        return "2024-11-10";
+      }
+    })(),
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
@@ -402,7 +412,8 @@ export function DashboardComponent() {
 
   const handlePreviousDay = () => {
     const newDate = subDays(selectedDate, 1);
-    if (format(newDate, "yyyy-MM-dd") >= tripDates.start) {
+    const formattedNewDate = format(newDate, "yyyy-MM-dd");
+    if (formattedNewDate >= tripDates.start) {
       setSelectedDate(newDate);
     }
   };
@@ -415,12 +426,26 @@ export function DashboardComponent() {
   };
 
   const initialCoordinates = {
-    lat: parseFloat(
-      JSON.parse(localStorage.getItem("tripDetails") || "{}").coordinates.lat
-    ),
-    lng: parseFloat(
-      JSON.parse(localStorage.getItem("tripDetails") || "{}").coordinates.lng
-    ),
+    lat: (() => {
+      try {
+        const stored = localStorage.getItem("tripDetails");
+        return stored
+          ? parseFloat(JSON.parse(stored).coordinates?.lat)
+          : 40.7128;
+      } catch {
+        return 40.7128; // Default to New York coordinates
+      }
+    })(),
+    lng: (() => {
+      try {
+        const stored = localStorage.getItem("tripDetails");
+        return stored
+          ? parseFloat(JSON.parse(stored).coordinates?.lng)
+          : -74.006;
+      } catch {
+        return -74.006; // Default to New York coordinates
+      }
+    })(),
   };
 
   // Add helper function to get all active user names
@@ -551,7 +576,8 @@ export function DashboardComponent() {
                   size="icon"
                   onClick={handlePreviousDay}
                   disabled={
-                    format(selectedDate, "yyyy-MM-dd") <= tripDates.start
+                    format(subDays(selectedDate, 1), "yyyy-MM-dd") <
+                    tripDates.start
                   }
                 >
                   <ChevronLeft className="h-4 w-4" />

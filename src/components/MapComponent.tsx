@@ -32,9 +32,6 @@ export function MapComponent({
   onSavePoi,
   initialCoordinates,
 }: MapComponentProps): JSX.Element {
-  console.log("================");
-  console.log("initialCoordinates", initialCoordinates);
-  console.log("================");
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const [infoWindowShown, setInfoWindowShown] = useState(false);
   const [markerRef, marker] = useAdvancedMarkerRef();
