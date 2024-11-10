@@ -17,6 +17,7 @@ import Image from "next/image";
 
 interface MapComponentProps {
   onSavePoi?: (poi: PoiInfo) => void;
+  initialCoordinates?: { lat: number; lng: number };
 }
 
 interface PoiInfo {
@@ -27,7 +28,13 @@ interface PoiInfo {
   photoUrl?: string | null;
 }
 
-export function MapComponent({ onSavePoi }: MapComponentProps): JSX.Element {
+export function MapComponent({
+  onSavePoi,
+  initialCoordinates,
+}: MapComponentProps): JSX.Element {
+  console.log("================");
+  console.log("initialCoordinates", initialCoordinates);
+  console.log("================");
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const [infoWindowShown, setInfoWindowShown] = useState(false);
   const [markerRef, marker] = useAdvancedMarkerRef();
@@ -223,7 +230,7 @@ export function MapComponent({ onSavePoi }: MapComponentProps): JSX.Element {
 
         <Map
           style={{ width: "100%", height: "100%" }}
-          defaultCenter={{ lat: 38.736946, lng: -9.142685 }}
+          defaultCenter={initialCoordinates}
           defaultZoom={10}
           gestureHandling="greedy"
           disableDefaultUI={true}

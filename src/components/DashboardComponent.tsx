@@ -45,13 +45,6 @@ interface TripLocation {
   website: string;
 }
 
-// Mock trip members instead of using useConnectedUsers
-const MOCK_USERS = [
-  { userId: "1", name: "Ana Sofia", isYou: false },
-  { userId: "2", name: "Bruno Sena", isYou: false },
-  { userId: "3", name: "João Pedro", isYou: true },
-];
-
 // Add this new component for the date range selector
 function DateRangeSelector({
   tripDates,
@@ -158,22 +151,22 @@ function DateRangeSelector({
 }
 
 export function DashboardComponent() {
-  const [userName, setUserName] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("userName") || "Anonymous";
-    }
-    return "Anonymous";
-  });
-
-  console.log("userName", userName);
-  console.log("tripDetails", localStorage.getItem("tripDetails"));
+  const [userName, userNamesPerUser] =
+    useStateTogetherWithPerUserValues<string>(
+      "user-names",
+      localStorage.getItem("userName") || "Anonymous"
+    );
 
   const [tripDates, setTripDates] = useStateTogether<{
     start: string;
     end: string;
   }>("trip-dates", {
-    start: "2024-04-11",
-    end: "2024-04-25",
+    start:
+      JSON.parse(localStorage.getItem("tripDetails") || "{}").dateRange.start ||
+      "",
+    end:
+      JSON.parse(localStorage.getItem("tripDetails") || "{}").dateRange.end ||
+      "",
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
@@ -421,6 +414,20 @@ export function DashboardComponent() {
     }
   };
 
+  const initialCoordinates = {
+    lat: parseFloat(
+      JSON.parse(localStorage.getItem("tripDetails") || "{}").coordinates.lat
+    ),
+    lng: parseFloat(
+      JSON.parse(localStorage.getItem("tripDetails") || "{}").coordinates.lng
+    ),
+  };
+
+  // Add helper function to get all active user names
+  const getActiveUsers = () => {
+    return Object.values(userNamesPerUser);
+  };
+
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
@@ -459,14 +466,14 @@ export function DashboardComponent() {
         <div className="p-4 border-t">
           <h3 className="text-sm font-semibold mb-3">Your Trip Group</h3>
           <div className="space-y-2 mb-4">
-            {MOCK_USERS.map((user) => (
-              <div key={user.userId} className="flex items-center">
+            {getActiveUsers().map((name, index) => (
+              <div key={index} className="flex items-center">
                 <div
                   className="w-2 h-2 rounded-full mr-2"
-                  style={{ backgroundColor: getUserColor(user.userId) }}
+                  style={{ backgroundColor: getUserColor(index.toString()) }}
                 />
                 <span className="text-sm">
-                  {user.isYou ? `${user.name} (You)` : user.name}
+                  {name === userName ? `${name} (You)` : name}
                 </span>
               </div>
             ))}
@@ -528,7 +535,10 @@ export function DashboardComponent() {
           {/* Map Container */}
           <div className="flex-1 relative">
             <div className="absolute inset-0">
-              <MapComponent onSavePoi={handleSavePoi} />
+              <MapComponent
+                onSavePoi={handleSavePoi}
+                initialCoordinates={initialCoordinates}
+              />
             </div>
           </div>
 
