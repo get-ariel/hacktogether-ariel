@@ -202,9 +202,9 @@ export function DashboardComponent() {
     (() => {
       try {
         const stored = localStorage.getItem("tripDetails");
-        return stored ? JSON.parse(stored).city : "New York";
+        return stored ? JSON.parse(stored).city : "Lisbon";
       } catch {
-        return "New York";
+        return "Lisbon";
       }
     })()
   );
@@ -455,9 +455,9 @@ export function DashboardComponent() {
         const stored = localStorage.getItem("tripDetails");
         return stored
           ? parseFloat(JSON.parse(stored).coordinates?.lat)
-          : 40.7128;
+          : 38.7223;
       } catch {
-        return 40.7128; // Default to New York coordinates
+        return 38.7223; // Default to Lisbon coordinates
       }
     })(),
     lng: (() => {
@@ -465,9 +465,9 @@ export function DashboardComponent() {
         const stored = localStorage.getItem("tripDetails");
         return stored
           ? parseFloat(JSON.parse(stored).coordinates?.lng)
-          : -74.006;
+          : -9.1393;
       } catch {
-        return -74.006; // Default to New York coordinates
+        return -9.1393; // Default to Lisbon coordinates
       }
     })(),
   });
