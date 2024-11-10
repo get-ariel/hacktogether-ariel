@@ -8,6 +8,7 @@ import {
   InfoWindow,
   useAdvancedMarkerRef,
   MapMouseEvent,
+  MapCameraChangedEvent,
 } from "@vis.gl/react-google-maps";
 import { Cursor } from "@/components/Cursor";
 import { useState, useCallback } from "react";
@@ -27,6 +28,12 @@ export function MapComponent(): JSX.Element {
 
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
 
+  const [zoom, setZoom] = useState(10);
+
+  const handleZoomChanged = useCallback((e: MapCameraChangedEvent) => {
+    setZoom(e.detail.zoom || 10);
+  }, []);
+
   const handleMarkerClick = useCallback(() => {
     setInfoWindowShown((shown) => !shown);
   }, []);
@@ -40,6 +47,9 @@ export function MapComponent(): JSX.Element {
     const { detail } = e;
 
     if (detail.placeId && detail.latLng) {
+      // Close any existing InfoWindow first
+      setPoiInfo(null);
+
       // Prevent the default info window from appearing
       e.stop();
       const service = new google.maps.places.PlacesService(e.map);
@@ -73,6 +83,7 @@ export function MapComponent(): JSX.Element {
         disableDefaultUI={true}
         mapId="cc6289491cc9a804" // Your custom map ID with POIs hidden
         onClick={handleMapClick}
+        onZoomChanged={handleZoomChanged}
         // Removed styles prop since mapId is being used
       >
         <Cursor />
@@ -85,7 +96,7 @@ export function MapComponent(): JSX.Element {
             background="#4285F4"
             borderColor="#1967D2"
             glyphColor="#FFFFFF"
-            scale={1.2}
+            scale={zoom > 12 ? 1.5 : 1}
           />
         </AdvancedMarker>
 
@@ -113,38 +124,46 @@ export function MapComponent(): JSX.Element {
               background="#FF0000"
               borderColor="#B20000"
               glyphColor="#FFFFFF"
-              scale={1}
+              scale={zoom > 12 ? 1.3 : 0.8}
             />
             <InfoWindow
               position={poiInfo.position}
               onClose={handleInfoWindowClose}
             >
-              <div className="p-2">
-                <h3 className="font-bold text-lg">{poiInfo.name}</h3>
-                <p className="text-gray-600">{poiInfo.address}</p>
+              <div className="w-72">
+                <h3 className="font-bold text-lg text-gray-800">
+                  {poiInfo.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-2 truncate">
+                  {poiInfo.address}
+                </p>
                 {poiInfo.photoUrl && (
-                  <img
-                    src={poiInfo.photoUrl}
-                    alt={poiInfo.name}
-                    className="w-full h-auto mb-2"
-                  />
+                  <div className="w-full h-36 mb-2 overflow-hidden rounded-lg">
+                    <img
+                      src={poiInfo.photoUrl}
+                      alt={poiInfo.name}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </div>
                 )}
-                {poiInfo.website && (
-                  <a
-                    href={poiInfo.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700"
+                <div className="flex flex-col gap-2">
+                  {poiInfo.website && (
+                    <a
+                      href={poiInfo.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm hover:underline"
+                    >
+                      Visit Website
+                    </a>
+                  )}
+                  <button
+                    onClick={() => alert("Button clicked!")}
+                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
                   >
-                    Visit Website
-                  </a>
-                )}
-                <button
-                  onClick={() => alert("Button clicked!")}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Custom Button
-                </button>
+                    Custom Button
+                  </button>
+                </div>
               </div>
             </InfoWindow>
           </AdvancedMarker>
