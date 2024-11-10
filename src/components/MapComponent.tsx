@@ -277,6 +277,8 @@ export function MapComponent(): JSX.Element {
                   <Image
                     src={poiInfo.photoUrl}
                     alt={poiInfo.name}
+                    width={300}
+                    height={300}
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
