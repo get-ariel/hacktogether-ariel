@@ -130,65 +130,80 @@ function DashboardContent() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex">
-        {/* Map Placeholder */}
-        <div className="flex-1 bg-gray-100 flex items-center justify-center">
-          <span className="text-gray-500">Map goes here</span>
+      {/* Main Content with Top Bar */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <div className="border-b p-4 flex items-center justify-between bg-background">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              US power trip 2025 <span className="text-xl">🇺🇸</span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              April 11, 2025 - April 25, 2025
+            </p>
+          </div>
         </div>
 
-        {/* Right Sidebar */}
-        <aside className="w-96 border-l flex flex-col">
-          <div className="p-4 border-b flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => handleDateChange('prev')}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-center">
-              <h2 className="text-2xl font-bold">{format(selectedDate, 'MMMM d')}</h2>
-              <p className="text-sm text-foreground/60">{format(selectedDate, 'EEEE')}</p>
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => handleDateChange('next')}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+        {/* Map and Sidebar Container */}
+        <main className="flex-1 flex">
+          {/* Map Placeholder */}
+          <div className="flex-1 bg-gray-100 flex items-center justify-center">
+            <span className="text-gray-500">Map goes here</span>
           </div>
 
-          <div className="flex-1 overflow-auto p-4 space-y-4">
-            {filteredLocations.map((location) => (
-              <div key={location.id} className="relative overflow-hidden rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-all">
-                <img
-                  src={location.image}
-                  alt={location.name}
-                  className="object-cover w-full h-48 transition-transform duration-300 hover:scale-105"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-900/80 to-transparent">
-                  <h3 className="text-white font-semibold">{location.name}</h3>
-                  <p className="text-white/80 text-sm mb-2">{location.address}</p>
-                  <div className="flex justify-between items-center">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-white hover:text-primary"
-                      onClick={() => handleLike(location.id)}
-                    >
-                      <ThumbsUp className={`h-4 w-4 mr-2 ${myId && location.likes.includes(myId) ? 'fill-primary' : ''}`} />
-                      {location.likes.length}
-                    </Button>
-                    <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.name} ${location.address}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button variant="ghost" size="sm" className="text-white hover:text-primary">
-                        <ExternalLink className="h-4 w-4" />
+          {/* Right Sidebar */}
+          <aside className="w-96 border-l flex flex-col">
+            <div className="p-4 border-b flex items-center justify-between">
+              <Button variant="ghost" size="icon" onClick={() => handleDateChange('prev')}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-center">
+                <h2 className="text-2xl font-bold">{format(selectedDate, 'MMMM d')}</h2>
+                <p className="text-sm text-foreground/60">{format(selectedDate, 'EEEE')}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => handleDateChange('next')}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-auto p-4 space-y-4">
+              {filteredLocations.map((location) => (
+                <div key={location.id} className="relative overflow-hidden rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-all">
+                  <img
+                    src={location.image}
+                    alt={location.name}
+                    className="object-cover w-full h-48 transition-transform duration-300 hover:scale-105"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-900/80 to-transparent">
+                    <h3 className="text-white font-semibold">{location.name}</h3>
+                    <p className="text-white/80 text-sm mb-2">{location.address}</p>
+                    <div className="flex justify-between items-center">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-white hover:text-primary"
+                        onClick={() => handleLike(location.id)}
+                      >
+                        <ThumbsUp className={`h-4 w-4 mr-2 ${myId && location.likes.includes(myId) ? 'fill-primary' : ''}`} />
+                        {location.likes.length}
                       </Button>
-                    </a>
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.name} ${location.address}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="ghost" size="sm" className="text-white hover:text-primary">
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </main>
+              ))}
+            </div>
+          </aside>
+        </main>
+      </div>
     </div>
   );
 }
