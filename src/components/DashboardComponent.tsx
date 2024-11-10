@@ -434,8 +434,8 @@ export function DashboardComponent() {
 
   const handlePreviousDay = () => {
     const newDate = subDays(selectedDate, 1);
-    const formattedNewDate = format(newDate, "yyyy-MM-dd");
-    if (formattedNewDate >= tripDates.start) {
+    const startDateObj = new Date(tripDates.start);
+    if (newDate >= startDateObj) {
       setSelectedDate(newDate);
     }
   };
@@ -667,7 +667,8 @@ export function DashboardComponent() {
                   size="icon"
                   onClick={handlePreviousDay}
                   disabled={
-                    format(selectedDate, "yyyy-MM-dd") <= tripDates.start
+                    new Date(format(selectedDate, "yyyy-MM-dd")) <=
+                    new Date(tripDates.start)
                   }
                 >
                   <ChevronLeft className="h-4 w-4" />
