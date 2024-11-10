@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import ReactTogetherWrapper from "@/components/ReactTogetherWrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Hack Together Ariel",
-  description: "",
+  title: "TripSync",
+  description: "Plan Your Next Adventure Together",
 };
 
 export default function RootLayout({
@@ -28,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ReactTogetherWrapper>{children}</ReactTogetherWrapper>
       </body>
     </html>
   );

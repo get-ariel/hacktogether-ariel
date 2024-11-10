@@ -1,7 +1,7 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import ReactTogetherWrapper from "@/components/ReactTogetherWrapper";
+import dynamic from "next/dynamic";
 
 const Counter = dynamic(
   () => import("@/components/Counter").then((mod) => mod.Counter),

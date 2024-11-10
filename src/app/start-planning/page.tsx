@@ -1,14 +1,29 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
+import dynamic from "next/dynamic";
+
+const CreateRandomSessionButton = dynamic(
+  () =>
+    import("@/components/CreateRandomSessionButton").then(
+      (mod) => mod.CreateRandomSessionButton
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-12 bg-gray-100 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
 export default function StartPlanningPage() {
   const [city, setCity] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
+
+  const isFormFilled = Boolean(city && date?.from && date?.to);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,13 +62,7 @@ export default function StartPlanningPage() {
             />
           </div>
         </div>
-
-        <Button
-          type="submit"
-          className="w-full text-xl py-6 rounded-xl bg-black"
-        >
-          Start Planning
-        </Button>
+        <CreateRandomSessionButton disabled={!isFormFilled} />
       </form>
     </div>
   );

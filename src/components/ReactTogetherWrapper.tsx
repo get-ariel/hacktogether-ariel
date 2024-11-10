@@ -30,8 +30,6 @@ export default function ReactTogetherWrapper({
         sessionParams={{
           appId: process.env.NEXT_PUBLIC_APP_ID || "",
           apiKey: process.env.NEXT_PUBLIC_API_KEY || "",
-          name: process.env.NEXT_PUBLIC_SESSION_NAME || "",
-          password: process.env.NEXT_PUBLIC_SESSION_PASSWORD || "",
         }}
       >
         {children}
