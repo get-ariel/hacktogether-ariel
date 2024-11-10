@@ -1,0 +1,32 @@
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind developing TripSync, a web app for collaborative trip planning.
+
+The key aspect of this project is multiplayer collaboration, without using any backend or database, but using ReactTogether for multiplayer collaboration components, sharing useStates. ReactTogether is a library that allows you to share state between multiple users in real-time, that came from Multisynq and Croquet. 
+
+
+Key Principles
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
+- Use ReactTogether for multiplayer collaboration components.
+
+Naming Conventions
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
+
+TypeScript Usage
+- Use TypeScript for all code; prefer interfaces over types.
+- Use functional components with TypeScript interfaces.
+
+UI and Styling
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Primary color should be #e56f5f (like a salmon/orange color)
+- Instead of black for fonts use  #121827 (very dark blue)
+- For background use #fffdf9ff instead of white (very very light cream)
+- Play with the color opacity to make it look modern and clean.
+
+
+Follow Next.js docs for Data Fetching, Rendering, and Routing.
+YOU ARE USING NEXT.JS 14 WITH APP ROUTER AND SRC FOLDER.
