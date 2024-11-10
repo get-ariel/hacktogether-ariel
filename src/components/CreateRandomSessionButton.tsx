@@ -28,7 +28,7 @@ export function CreateRandomSessionButton({
           ${
             disabled
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-orange-600 hover:bg-orange-700"
+              : "bg-primary hover:bg-primary/90"
           }`}
         onClick={handleClick}
         disabled={disabled}

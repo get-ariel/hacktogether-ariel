@@ -14,7 +14,9 @@ export default function JoinSessionContent() {
   const getQueryParams = () => {
     if (joinUrl) return joinUrl.split("?")[1];
     if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).toString();
+      const search = window.location.search;
+      const hash = window.location.hash;
+      return `${search.slice(1)}${hash}`.replace("#", "&");
     }
     return "";
   };
