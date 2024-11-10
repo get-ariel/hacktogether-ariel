@@ -9,9 +9,12 @@ import {
   useAdvancedMarkerRef,
   MapMouseEvent,
   MapCameraChangedEvent,
+  MapControl,
+  ControlPosition,
+  useMap,
 } from "@vis.gl/react-google-maps";
 import { Cursor } from "@/components/Cursor";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export function MapComponent(): JSX.Element {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
@@ -27,7 +30,6 @@ export function MapComponent(): JSX.Element {
   }
 
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
-
   const [zoom, setZoom] = useState(10);
 
   const handleZoomChanged = useCallback((e: MapCameraChangedEvent) => {
@@ -73,20 +75,133 @@ export function MapComponent(): JSX.Element {
     }
   }, []);
 
+  // SearchBox Component
+  function SearchBox() {
+    const map = useMap();
+    const inputRef = useRef<HTMLInputElement>(null);
+    const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(
+      null
+    );
+
+    useEffect(() => {
+      if (!inputRef.current || !window.google || !window.google.maps) return;
+      if (!window.google.maps.places) return;
+
+      const autocomplete = new google.maps.places.Autocomplete(
+        inputRef.current!,
+        {
+          fields: ["geometry", "name", "formatted_address"],
+        }
+      );
+      autocompleteRef.current = autocomplete;
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) return;
+        if (map) {
+          map.panTo(place.geometry.location);
+          map.setZoom(15);
+        }
+      });
+
+      return () => {
+        // Clean up listener
+        if (autocompleteRef.current) {
+          google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        }
+      };
+    }, [map]);
+
+    return (
+      <div className="search-box">
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Search for places..."
+          style={{
+            width: "400px",
+            padding: "12px 16px",
+            margin: "10px",
+            borderRadius: "8px",
+            border: "1px solid #e2e8f0",
+            fontSize: "16px",
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            outline: "none",
+            transition: "all 0.2s ease",
+          }}
+          className="hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        />
+        <style jsx global>{`
+          /* Autocomplete container */
+          .pac-container {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin-top: 8px;
+            padding: 8px 0;
+            background-color: white;
+          }
+
+          /* Individual suggestion items */
+          .pac-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+          }
+
+          .pac-item:hover {
+            background-color: #f3f4f6;
+          }
+
+          /* Main text in suggestions */
+          .pac-item-query {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1f2937;
+          }
+
+          /* Secondary text in suggestions */
+          .pac-item > span:not(.pac-item-query) {
+            color: #6b7280;
+          }
+
+          /* Matched text highlighting */
+          .pac-matched {
+            font-weight: 600;
+            color: #2563eb;
+          }
+
+          /* Remove the Google Powered logo */
+          .pac-logo:after {
+            display: none;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <APIProvider apiKey={API_KEY} libraries={["places"]}>
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+        <SearchBox />
+      </div>
+
       <Map
         style={{ width: "100vw", height: "100vh" }}
         defaultCenter={{ lat: 38.736946, lng: -9.142685 }}
         defaultZoom={10}
         gestureHandling="greedy"
         disableDefaultUI={true}
-        mapId="cc6289491cc9a804" // Your custom map ID with POIs hidden
+        mapId="cc6289491cc9a804"
         onClick={handleMapClick}
         onZoomChanged={handleZoomChanged}
-        // Removed styles prop since mapId is being used
       >
         <Cursor />
+
         <AdvancedMarker
           position={{ lat: 38.736946, lng: -9.142685 }}
           onClick={handleMarkerClick}
@@ -152,7 +267,7 @@ export function MapComponent(): JSX.Element {
                       href={poiInfo.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm hover:underline"
+                      className="text-blue-600 hover:text-blue-800 text-sm hover:underline focus:outline-none"
                     >
                       Visit Website
                     </a>
