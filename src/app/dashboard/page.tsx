@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, FileText, Share2, Download, ChevronRight, ChevronLeft, ThumbsUp, ExternalLink } from "lucide-react";
+import { MapPin, Calendar, FileText, Share2, Download, ChevronRight, ChevronLeft, ThumbsUp, ExternalLink, ChevronUp, ChevronDown, X } from "lucide-react";
 import Link from "next/link";
 import { format, addDays, subDays } from "date-fns";
 import { useState } from "react";
@@ -76,6 +76,44 @@ function DashboardContent() {
     const colors = ['#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#9C27B0'];
     const index = parseInt(userId.slice(-3), 16) % colors.length;
     return colors[index];
+  };
+
+  const handleRemove = (locationId: string) => {
+    setLocations(locations.filter(loc => loc.id !== locationId));
+  };
+
+  const handleReorder = (locationId: string, direction: 'up' | 'down') => {
+    const currentDate = format(selectedDate, 'yyyy-MM-dd');
+    
+    setLocations(prevLocations => {
+      // Get locations for current date and others
+      const dateLocations = [...prevLocations.filter(loc => loc.date === currentDate)];
+      const otherLocations = prevLocations.filter(loc => loc.date !== currentDate);
+      
+      // Find current location index
+      const currentIndex = dateLocations.findIndex(loc => loc.id === locationId);
+      const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      
+      // Check if move is possible
+      if (
+        (direction === 'up' && currentIndex === 0) || 
+        (direction === 'down' && currentIndex === dateLocations.length - 1)
+      ) {
+        return prevLocations;
+      }
+      
+      // Swap locations
+      [dateLocations[currentIndex], dateLocations[swapIndex]] = 
+        [dateLocations[swapIndex], dateLocations[currentIndex]];
+      
+      // Update order numbers sequentially
+      dateLocations.forEach((loc, index) => {
+        loc.order = index;
+      });
+      
+      // Return updated locations
+      return [...otherLocations, ...dateLocations];
+    });
   };
 
   return (
@@ -167,35 +205,68 @@ function DashboardContent() {
             </div>
 
             <div className="flex-1 overflow-auto p-4 space-y-4">
-              {filteredLocations.map((location) => (
+              {filteredLocations.map((location, index) => (
                 <div key={location.id} className="relative overflow-hidden rounded-lg bg-foreground/5 hover:bg-foreground/10 transition-all">
                   <img
                     src={location.image}
                     alt={location.name}
                     className="object-cover w-full h-48 transition-transform duration-300 hover:scale-105"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-900/80 to-transparent">
-                    <h3 className="text-white font-semibold">{location.name}</h3>
-                    <p className="text-white/80 text-sm mb-2">{location.address}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-white font-semibold text-lg">{location.name}</h3>
+                    <p className="text-white/90 text-sm mb-3">{location.address}</p>
                     <div className="flex justify-between items-center">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-white hover:text-primary"
-                        onClick={() => handleLike(location.id)}
-                      >
-                        <ThumbsUp className={`h-4 w-4 mr-2 ${myId && location.likes.includes(myId) ? 'fill-primary' : ''}`} />
-                        {location.likes.length}
-                      </Button>
-                      <a 
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.name} ${location.address}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="ghost" size="sm" className="text-white hover:text-primary">
-                          <ExternalLink className="h-4 w-4" />
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-white hover:text-primary hover:bg-white/10"
+                          onClick={() => handleLike(location.id)}
+                        >
+                          <ThumbsUp className={`h-4 w-4 ${myId && location.likes.includes(myId) ? 'fill-primary' : ''}`} />
+                          <span className="ml-2">{location.likes.length}</span>
                         </Button>
-                      </a>
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-white hover:text-primary hover:bg-white/10"
+                            onClick={() => handleReorder(location.id, 'up')}
+                            disabled={index === 0}
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-white hover:text-primary hover:bg-white/10"
+                            onClick={() => handleReorder(location.id, 'down')}
+                            disabled={index === filteredLocations.length - 1}
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.name} ${location.address}`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="ghost" size="sm" className="text-white hover:text-primary hover:bg-white/10">
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </a>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-white hover:text-destructive hover:bg-white/10"
+                          onClick={() => handleRemove(location.id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
