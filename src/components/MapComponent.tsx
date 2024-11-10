@@ -5,6 +5,8 @@ import {
   Map,
   InfoWindow,
   useAdvancedMarkerRef,
+  AdvancedMarker,
+  Pin,
   MapMouseEvent,
   MapCameraChangedEvent,
   useMap,
@@ -32,14 +34,17 @@ export function MapComponent({
 }: MapComponentProps): JSX.Element {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const [infoWindowShown, setInfoWindowShown] = useState(false);
-  const [, marker] = useAdvancedMarkerRef();
+  const [markerRef, marker] = useAdvancedMarkerRef();
 
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
   const [zoom, setZoom] = useState(10);
-  console.log(zoom);
 
   const handleZoomChanged = useCallback((e: MapCameraChangedEvent) => {
     setZoom(e.detail.zoom || 10);
+  }, []);
+
+  const handleMarkerClick = useCallback(() => {
+    setInfoWindowShown((shown) => !shown);
   }, []);
 
   const handleInfoWindowClose = useCallback(() => {
@@ -231,6 +236,20 @@ export function MapComponent({
           onZoomChanged={handleZoomChanged}
         >
           <Cursor />
+
+          {/* Initial Marker */}
+          <AdvancedMarker
+            position={{ lat: 38.736946, lng: -9.142685 }}
+            onClick={handleMarkerClick}
+            ref={markerRef}
+          >
+            <Pin
+              background="#4285F4"
+              borderColor="#1967D2"
+              glyphColor="#FFFFFF"
+              scale={zoom > 12 ? 1.5 : 1}
+            />
+          </AdvancedMarker>
 
           {infoWindowShown && (
             <InfoWindow anchor={marker} onClose={handleInfoWindowClose}>

@@ -39,14 +39,22 @@ export function Cursor() {
   } | null>(null);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !map.getDiv()) return;
 
     const overlay = new google.maps.OverlayView();
-    overlay.onAdd = function () {};
+
+    overlay.onAdd = function () {
+      // Create a div to add to the overlay, even if it's not used
+      const div = document.createElement("div");
+      this.getPanes()?.overlayMouseTarget.appendChild(div);
+
+      // Set the overlayView in state after it's added to the map
+      setOverlayView(this);
+    };
+
     overlay.draw = function () {};
-    overlay.onRemove = function () {};
+
     overlay.setMap(map);
-    setOverlayView(overlay);
 
     const updateMapBounds = () => {
       const mapDiv = map.getDiv();
@@ -65,6 +73,7 @@ export function Cursor() {
 
     return () => {
       overlay.setMap(null);
+      setOverlayView(null);
       window.removeEventListener("resize", updateMapBounds);
       google.maps.event.clearListeners(map, "idle");
     };
@@ -76,37 +85,32 @@ export function Cursor() {
 
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();
-      if (now - lastUpdate >= THROTTLE_MS) {
-        if (!overlayView || !overlayView.getProjection() || !mapBounds) {
-          return;
-        }
+      if (now - lastUpdate < THROTTLE_MS) return;
 
-        const x = e.clientX - mapBounds.left;
-        const y = e.clientY - mapBounds.top;
+      if (!overlayView?.getProjection() || !mapBounds || !map) return;
 
-        if (
-          x < 0 ||
-          x > mapBounds.right - mapBounds.left ||
-          y < 0 ||
-          y > mapBounds.bottom - mapBounds.top
-        ) {
-          return;
-        }
+      const mapDiv = map.getDiv();
+      const rect = mapDiv.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
+      if (x < 0 || x > rect.width || y < 0 || y > rect.height) return;
+
+      try {
         const projection = overlayView.getProjection();
         const point = new google.maps.Point(x, y);
         const latLng = projection.fromContainerPixelToLatLng(point);
 
         if (!latLng) return;
 
-        const position = {
+        setSharedValue({
           lat: latLng.lat(),
           lng: latLng.lng(),
           color: sharedValue.color,
-        };
-
-        setSharedValue(position);
+        });
         lastUpdate = now;
+      } catch (error) {
+        console.error("Error updating cursor position:", error);
       }
     };
 
