@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TripSync
+
+![TripSync](image.png)
+
+Welcome to **TripSync**, a collaborative trip planning web app designed for seamless multiplayer interaction without the need for a backend. Built with cutting-edge technologies like Next.js, ReactTogether, and styled with Shadcn UI, Radix UI, and Tailwind CSS, TripSync offers a modern and responsive user experience.
+
+## Key Features
+
+- **Real-time Collaboration**: Utilize ReactTogether to share state between users in real-time, enabling a truly collaborative planning experience.
+- **Modern UI**: Styled with Shadcn UI, Radix UI, and Tailwind CSS, TripSync offers a clean and responsive design.
+- **No Backend Required**: All collaboration is handled on the client-side, eliminating the need for a traditional backend or database.
 
 ## Getting Started
 
-First, run the development server:
+To get started with TripSync, follow these steps:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Clone the Repository**:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   git clone https://github.com/get-ariel/hacktogether-ariel
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Install Dependencies**:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-## Learn More
+3. **Run the Development Server**:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Open in Browser**:
+   Visit [http://localhost:3000](http://localhost:3000) to start planning your trips collaboratively.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technologies Used
 
-## Deploy on Vercel
+- **Next.js 14**: Leveraging the latest features of Next.js with the App Router and `src` folder structure.
+- **ReactTogether**: For real-time state sharing between users.
+- **TypeScript**: Ensuring type safety and robust code.
+- **Shadcn UI, Radix UI, Tailwind CSS**: For a modern, responsive, and visually appealing design.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Design Principles
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Functional and Declarative**: Emphasizing functional programming patterns and avoiding classes.
+- **Modular and Iterative**: Prioritizing code modularization and iteration over duplication.
+- **Descriptive Naming**: Using clear and descriptive variable names with auxiliary verbs.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request with your changes. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For questions or feedback, please reach out to [your-email@example.com](mailto:your-email@example.com).
+
+---
+
+Happy trip planning with TripSync!
