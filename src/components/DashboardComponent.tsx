@@ -35,7 +35,6 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { usePathname } from "next/navigation";
 
 interface TripLocation {
   id: string;
@@ -477,9 +476,6 @@ export function DashboardComponent() {
   useEffect(() => {
     setTripTitle(`${tripCity} Trip ✈️`);
   }, [tripCity, setTripTitle]);
-
-  // const { toast } = useToast();
-  const pathname = usePathname();
 
   const handleShareTrip = () => {
     const currentUrl = window.location.href;
