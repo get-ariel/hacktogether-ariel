@@ -114,6 +114,16 @@ export default function StartPlanningPage() {
               numberOfMonths={2}
               defaultMonth={new Date(2024, 10)}
               className="p-4"
+              classNames={{
+                day_range_middle:
+                  "bg-primary/50 text-[#121827] hover:bg-primary/60 rounded-none",
+                day_selected:
+                  "bg-primary text-white hover:bg-primary/90 rounded-md",
+                day_range_end:
+                  "bg-primary text-white hover:bg-primary/90 rounded-md",
+                day_range_start:
+                  "bg-primary text-white hover:bg-primary/90 rounded-md",
+              }}
             />
           </div>
         </div>
