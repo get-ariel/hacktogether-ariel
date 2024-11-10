@@ -35,6 +35,7 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
 
 interface TripLocation {
   id: string;
@@ -498,6 +499,47 @@ export function DashboardComponent() {
       });
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    // Clean trip title by removing emojis
+    const cleanTripTitle = tripTitle.replace(/[^\w\s]/gi, "");
+
+    // Add trip title
+    doc.setFontSize(20);
+    doc.text(cleanTripTitle, 10, 10);
+
+    // Format dates
+    const formattedStartDate = format(
+      new Date(tripDates.start),
+      "MMMM d, yyyy"
+    );
+    const formattedEndDate = format(new Date(tripDates.end), "MMMM d, yyyy");
+
+    // Add trip dates
+    doc.setFontSize(12);
+    doc.text(`Dates: ${formattedStartDate} to ${formattedEndDate}`, 10, 20);
+
+    // Add user names
+    doc.text("Participants:", 10, 30);
+    getActiveUsers().forEach((name, index) => {
+      doc.text(`- ${name}`, 10, 40 + index * 10);
+    });
+
+    // Add points of interest
+    doc.text("Points of Interest:", 10, 60);
+    locations.forEach((location, index) => {
+      doc.text(
+        `${index + 1}. ${location.name} (${getLikesCount(location.id)} likes)`,
+        10,
+        70 + index * 10
+      );
+    });
+
+    // Save the PDF
+    doc.save(`${cleanTripTitle.replace(/\s+/g, "_")}_Details.pdf`);
+  };
+
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
@@ -738,6 +780,15 @@ export function DashboardComponent() {
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="p-4 border-t">
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={handleExportPDF}
+              >
+                Export PDF
+              </Button>
             </div>
           </aside>
         </main>
