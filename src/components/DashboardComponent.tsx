@@ -158,6 +158,16 @@ function DateRangeSelector({
 }
 
 export function DashboardComponent() {
+  const [userName, setUserName] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("userName") || "Anonymous";
+    }
+    return "Anonymous";
+  });
+
+  console.log("userName", userName);
+  console.log("tripDetails", localStorage.getItem("tripDetails"));
+
   const [tripDates, setTripDates] = useStateTogether<{
     start: string;
     end: string;

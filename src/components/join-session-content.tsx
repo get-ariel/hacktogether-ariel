@@ -24,6 +24,7 @@ export default function JoinSessionContent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
+    localStorage.setItem("userName", name);
     joinSession();
   };
 

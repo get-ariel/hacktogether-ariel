@@ -18,6 +18,18 @@ const CreateRandomSessionButton = dynamic(
   }
 );
 
+interface TripDetails {
+  city: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+
 export default function StartPlanningPage() {
   const [city, setCity] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
@@ -29,7 +41,7 @@ export default function StartPlanningPage() {
 
     const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
       types: ["(cities)"],
-      fields: ["place_id", "formatted_address"],
+      fields: ["place_id", "formatted_address", "geometry"],
     });
 
     autocompleteRef.current = autocomplete;
@@ -52,7 +64,23 @@ export default function StartPlanningPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ city, date });
+
+    if (!date?.from || !date?.to || !autocompleteRef.current) return;
+
+    const place = autocompleteRef.current.getPlace();
+    const tripDetails: TripDetails = {
+      city,
+      coordinates: {
+        lat: place.geometry?.location?.lat() || 0,
+        lng: place.geometry?.location?.lng() || 0,
+      },
+      dateRange: {
+        start: date.from.toISOString(),
+        end: date.to.toISOString(),
+      },
+    };
+
+    localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
   };
 
   return (
