@@ -1,10 +1,11 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, FileText, Share2, Download, ChevronRight, ChevronLeft, ThumbsUp, ExternalLink, ChevronUp, ChevronDown, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { MapPin, Calendar, FileText, Share2, Download, ChevronRight, ChevronLeft, ThumbsUp, ExternalLink, ChevronUp, ChevronDown, X, Pencil, Check } from "lucide-react";
 import Link from "next/link";
 import { format, addDays, subDays } from "date-fns";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface TripLocation {
   id: string;
@@ -48,6 +49,9 @@ function DashboardContent() {
   const [selectedDate, setSelectedDate] = useState(new Date("2024-04-11"));
   const [locations, setLocations] = useState<TripLocation[]>(INITIAL_LOCATIONS);
   const myId = "3"; // Mock user ID
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tripTitle, setTripTitle] = useState("US power trip 2025 🇺🇸");
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const handleLike = (locationId: string) => {
     setLocations(locations.map(loc => {
@@ -116,6 +120,25 @@ function DashboardContent() {
     });
   };
 
+  const handleTitleEdit = () => {
+    setIsEditingTitle(true);
+    // Focus the input after render
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
+  const handleTitleSave = () => {
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleTitleSave();
+    }
+    if (e.key === 'Escape') {
+      setIsEditingTitle(false);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
@@ -128,7 +151,10 @@ function DashboardContent() {
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <Button variant="ghost" className="w-full justify-start">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start bg-primary/10 text-primary hover:bg-primary/20"
+          >
             <MapPin className="mr-2 h-4 w-4" />
             Planner
           </Button>
@@ -173,9 +199,38 @@ function DashboardContent() {
         {/* Top Bar */}
         <div className="border-b p-4 flex items-center justify-between bg-background">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              US power trip 2025 <span className="text-xl">🇺🇸</span>
-            </h1>
+            <div className="flex items-center gap-2">
+              {isEditingTitle ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={titleInputRef}
+                    value={tripTitle}
+                    onChange={(e) => setTripTitle(e.target.value)}
+                    onKeyDown={handleTitleKeyDown}
+                    className="text-2xl font-bold h-auto py-1 w-[300px]"
+                  />
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={handleTitleSave}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  {tripTitle}
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="ml-2"
+                    onClick={handleTitleEdit}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </h1>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
               April 11, 2025 - April 25, 2025
             </p>
