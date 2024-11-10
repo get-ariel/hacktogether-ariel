@@ -22,7 +22,7 @@ export default function JoinSessionContent() {
     e.preventDefault();
     if (!name.trim()) return;
     const queryParams = joinUrlState.split("?")[1];
-    router.push(`/map${queryParams ? `?${queryParams}` : ""}`);
+    router.push(`/dashboard${queryParams ? `?${queryParams}` : ""}`);
   };
 
   return (

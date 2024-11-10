@@ -211,100 +211,102 @@ export function MapComponent(): JSX.Element {
 
   return (
     <APIProvider apiKey={API_KEY} libraries={["places"]}>
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-        <SearchBox />
-      </div>
+      <div className="relative h-full w-full">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+          <SearchBox />
+        </div>
 
-      <Map
-        style={{ width: "100vw", height: "100vh" }}
-        defaultCenter={{ lat: 38.736946, lng: -9.142685 }}
-        defaultZoom={10}
-        gestureHandling="greedy"
-        disableDefaultUI={true}
-        mapId="cc6289491cc9a804"
-        onClick={handleMapClick}
-        onZoomChanged={handleZoomChanged}
-      >
-        <Cursor />
-
-        {/* Initial Marker */}
-        <AdvancedMarker
-          position={{ lat: 38.736946, lng: -9.142685 }}
-          onClick={handleMarkerClick}
-          ref={markerRef}
+        <Map
+          style={{ width: "100%", height: "100%" }}
+          defaultCenter={{ lat: 38.736946, lng: -9.142685 }}
+          defaultZoom={10}
+          gestureHandling="greedy"
+          disableDefaultUI={true}
+          mapId="cc6289491cc9a804"
+          onClick={handleMapClick}
+          onZoomChanged={handleZoomChanged}
         >
-          <Pin
-            background="#4285F4"
-            borderColor="#1967D2"
-            glyphColor="#FFFFFF"
-            scale={zoom > 12 ? 1.5 : 1}
-          />
-        </AdvancedMarker>
+          <Cursor />
 
-        {infoWindowShown && (
-          <InfoWindow anchor={marker} onClose={handleInfoWindowClose}>
-            <div className="p-2">
-              <h3 className="font-bold text-lg">Madre Deus</h3>
-              <p className="text-gray-600">1900-160 Lisbon</p>
-              <p className="text-gray-600">Portugal</p>
-              <a
-                href="https://maps.google.com/?q=Madre+Deus,Lisbon,Portugal"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-700"
-              >
-                View on Google Maps
-              </a>
-            </div>
-          </InfoWindow>
-        )}
-
-        {/* POI Marker and InfoWindow */}
-        {poiInfo && (
-          <InfoWindow
-            position={poiInfo.position}
-            onClose={handleInfoWindowClose}
+          {/* Initial Marker */}
+          <AdvancedMarker
+            position={{ lat: 38.736946, lng: -9.142685 }}
+            onClick={handleMarkerClick}
+            ref={markerRef}
           >
-            <div className="w-72">
-              <h3 className="font-bold text-lg text-gray-800">
-                {poiInfo.name}
-              </h3>
-              <p className="text-gray-600 text-sm mb-2 truncate">
-                {poiInfo.address}
-              </p>
-              {poiInfo.photoUrl && (
-                <div className="w-full h-36 mb-2 overflow-hidden rounded-lg">
-                  <Image
-                    src={poiInfo.photoUrl}
-                    alt={poiInfo.name}
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover object-center"
-                  />
-                </div>
-              )}
-              <div className="flex flex-col gap-2">
-                {poiInfo.website && (
-                  <a
-                    href={poiInfo.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm hover:underline focus:outline-none"
-                  >
-                    Visit Website
-                  </a>
-                )}
-                <button
-                  onClick={() => alert("Button clicked!")}
-                  className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
+            <Pin
+              background="#4285F4"
+              borderColor="#1967D2"
+              glyphColor="#FFFFFF"
+              scale={zoom > 12 ? 1.5 : 1}
+            />
+          </AdvancedMarker>
+
+          {infoWindowShown && (
+            <InfoWindow anchor={marker} onClose={handleInfoWindowClose}>
+              <div className="p-2">
+                <h3 className="font-bold text-lg">Madre Deus</h3>
+                <p className="text-gray-600">1900-160 Lisbon</p>
+                <p className="text-gray-600">Portugal</p>
+                <a
+                  href="https://maps.google.com/?q=Madre+Deus,Lisbon,Portugal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-700"
                 >
-                  Custom Button
-                </button>
+                  View on Google Maps
+                </a>
               </div>
-            </div>
-          </InfoWindow>
-        )}
-      </Map>
+            </InfoWindow>
+          )}
+
+          {/* POI Marker and InfoWindow */}
+          {poiInfo && (
+            <InfoWindow
+              position={poiInfo.position}
+              onClose={handleInfoWindowClose}
+            >
+              <div className="w-72">
+                <h3 className="font-bold text-lg text-gray-800">
+                  {poiInfo.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-2 truncate">
+                  {poiInfo.address}
+                </p>
+                {poiInfo.photoUrl && (
+                  <div className="w-full h-36 mb-2 overflow-hidden rounded-lg">
+                    <Image
+                      src={poiInfo.photoUrl}
+                      alt={poiInfo.name}
+                      width={300}
+                      height={300}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </div>
+                )}
+                <div className="flex flex-col gap-2">
+                  {poiInfo.website && (
+                    <a
+                      href={poiInfo.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm hover:underline focus:outline-none"
+                    >
+                      Visit Website
+                    </a>
+                  )}
+                  <button
+                    onClick={() => alert("Button clicked!")}
+                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
+                  >
+                    Custom Button
+                  </button>
+                </div>
+              </div>
+            </InfoWindow>
+          )}
+        </Map>
+      </div>
     </APIProvider>
   );
 }
