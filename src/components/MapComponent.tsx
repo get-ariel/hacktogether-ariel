@@ -9,12 +9,11 @@ import {
   useAdvancedMarkerRef,
   MapMouseEvent,
   MapCameraChangedEvent,
-  MapControl,
-  ControlPosition,
   useMap,
 } from "@vis.gl/react-google-maps";
 import { Cursor } from "@/components/Cursor";
 import { useState, useCallback, useRef, useEffect } from "react";
+import Image from "next/image";
 
 export function MapComponent(): JSX.Element {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
@@ -31,8 +30,6 @@ export function MapComponent(): JSX.Element {
 
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
   const [zoom, setZoom] = useState(10);
-
-  const [poiMarkerRef, poiMarker] = useAdvancedMarkerRef(); // Added reference for POI marker
 
   const handleZoomChanged = useCallback((e: MapCameraChangedEvent) => {
     setZoom(e.detail.zoom || 10);
@@ -144,7 +141,6 @@ export function MapComponent(): JSX.Element {
       });
 
       return () => {
-        // Clean up listeners
         if (autocompleteRef.current) {
           google.maps.event.clearInstanceListeners(autocompleteRef.current);
         }
@@ -152,7 +148,7 @@ export function MapComponent(): JSX.Element {
           google.maps.event.clearListeners(map, "bounds_changed");
         }
       };
-    }, [map, fetchPlaceDetails]);
+    }, [map]);
 
     return (
       <div className="search-box">
@@ -278,7 +274,7 @@ export function MapComponent(): JSX.Element {
               </p>
               {poiInfo.photoUrl && (
                 <div className="w-full h-36 mb-2 overflow-hidden rounded-lg">
-                  <img
+                  <Image
                     src={poiInfo.photoUrl}
                     alt={poiInfo.name}
                     className="w-full h-full object-cover object-center"

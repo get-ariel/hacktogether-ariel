@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateRandomSession, useJoinUrl } from "react-together";
+import { useCreateRandomSession } from "react-together";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { ShareSessionDialog } from "./ShareSessionDialog";
