@@ -10,19 +10,24 @@ export default function JoinSessionContent() {
   const [name, setName] = useState("");
   const router = useRouter();
   const joinUrl = useJoinUrl() || "";
-  console.log("Join URL:", joinUrl);
+
+  const getQueryParams = () => {
+    if (joinUrl) return joinUrl.split("?")[1];
+    if (typeof window !== "undefined") {
+      return window.location.search.substring(1);
+    }
+    return "";
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
+    joinSession();
   };
 
   const joinSession = () => {
-    console.log("Join URL:", joinUrl);
-    console.log("Query Params:", joinUrl.split("?")[1]);
-    router.push(
-      `/dashboard${joinUrl.split("?")[1] ? `?${joinUrl.split("?")[1]}` : ""}`
-    );
+    const queryParams = getQueryParams();
+    router.push(`/dashboard${queryParams ? `?${queryParams}` : ""}`);
   };
 
   return (
