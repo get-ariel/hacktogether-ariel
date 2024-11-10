@@ -152,7 +152,7 @@ function DateRangeSelector({
 }
 
 export function DashboardComponent() {
-  const [userName, setUserNames, userNamesPerUser] =
+  const [userName, userNamesPerUser] =
     useStateTogetherWithPerUserValues<string>(
       "user-names",
       localStorage.getItem("userName") || "Anonymous"
