@@ -21,7 +21,6 @@ const CreateRandomSessionButton = dynamic(
 export default function StartPlanningPage() {
   const [city, setCity] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
-  const [placeId, setPlaceId] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
@@ -39,7 +38,6 @@ export default function StartPlanningPage() {
       const place = autocomplete.getPlace();
       if (place.formatted_address) {
         setCity(place.formatted_address);
-        setPlaceId(place.place_id || "");
       }
     });
 
