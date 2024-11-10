@@ -106,9 +106,25 @@ export function MapComponent(): JSX.Element {
         inputRef.current!,
         {
           fields: ["geometry", "name", "formatted_address", "place_id"],
+          strictBounds: true,
         }
       );
       autocompleteRef.current = autocomplete;
+
+      const updateBounds = () => {
+        if (map && autocompleteRef.current) {
+          const bounds = map.getBounds();
+          if (bounds) {
+            autocompleteRef.current.setBounds(bounds);
+          }
+        }
+      };
+
+      updateBounds();
+
+      if (map) {
+        map.addListener("bounds_changed", updateBounds);
+      }
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
@@ -127,9 +143,12 @@ export function MapComponent(): JSX.Element {
       });
 
       return () => {
-        // Clean up listener
+        // Clean up listeners
         if (autocompleteRef.current) {
           google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        }
+        if (map) {
+          google.maps.event.clearListeners(map, "bounds_changed");
         }
       };
     }, [map, fetchPlaceDetails]);
@@ -245,53 +264,46 @@ export function MapComponent(): JSX.Element {
 
         {/* POI Marker and InfoWindow */}
         {poiInfo && (
-          <>
-            <AdvancedMarker position={poiInfo.position} ref={poiMarkerRef}>
-              <Pin
-                background="#FF0000"
-                borderColor="#B20000"
-                glyphColor="#FFFFFF"
-                scale={zoom > 12 ? 1.3 : 0.8}
-              />
-            </AdvancedMarker>
-            <InfoWindow anchor={poiMarker} onClose={handleInfoWindowClose}>
-              <div className="w-72">
-                <h3 className="font-bold text-lg text-gray-800">
-                  {poiInfo.name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 truncate">
-                  {poiInfo.address}
-                </p>
-                {poiInfo.photoUrl && (
-                  <div className="w-full h-36 mb-2 overflow-hidden rounded-lg">
-                    <img
-                      src={poiInfo.photoUrl}
-                      alt={poiInfo.name}
-                      className="w-full h-full object-cover object-center"
-                    />
-                  </div>
-                )}
-                <div className="flex flex-col gap-2">
-                  {poiInfo.website && (
-                    <a
-                      href={poiInfo.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm hover:underline focus:outline-none"
-                    >
-                      Visit Website
-                    </a>
-                  )}
-                  <button
-                    onClick={() => alert("Button clicked!")}
-                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
-                  >
-                    Custom Button
-                  </button>
+          <InfoWindow
+            position={poiInfo.position}
+            onClose={handleInfoWindowClose}
+          >
+            <div className="w-72">
+              <h3 className="font-bold text-lg text-gray-800">
+                {poiInfo.name}
+              </h3>
+              <p className="text-gray-600 text-sm mb-2 truncate">
+                {poiInfo.address}
+              </p>
+              {poiInfo.photoUrl && (
+                <div className="w-full h-36 mb-2 overflow-hidden rounded-lg">
+                  <img
+                    src={poiInfo.photoUrl}
+                    alt={poiInfo.name}
+                    className="w-full h-full object-cover object-center"
+                  />
                 </div>
+              )}
+              <div className="flex flex-col gap-2">
+                {poiInfo.website && (
+                  <a
+                    href={poiInfo.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 text-sm hover:underline focus:outline-none"
+                  >
+                    Visit Website
+                  </a>
+                )}
+                <button
+                  onClick={() => alert("Button clicked!")}
+                  className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
+                >
+                  Custom Button
+                </button>
               </div>
-            </InfoWindow>
-          </>
+            </div>
+          </InfoWindow>
         )}
       </Map>
     </APIProvider>
