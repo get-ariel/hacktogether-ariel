@@ -22,11 +22,71 @@ body {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .floating-icon {
   animation: float 6s ease-in-out infinite;
+}
+
+/* Custom calendar styles */
+::-webkit-calendar-picker-indicator {
+  background-color: rgba(229, 111, 95, 0.1);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(229, 111, 95, 0.2);
+}
+
+/* Calendar popup customization */
+input[type="date"]::-webkit-calendar-picker {
+  background-color: #fffdf9;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(229, 111, 95, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  padding: 0.5rem;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: #121827;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: rgba(18, 24, 39, 0.6);
+  padding: 0 0.25rem;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  padding: 0 0.25rem;
+}
+
+input[type="date"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+/* Selected date highlight */
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background-color: rgba(229, 111, 95, 0.1);
+  border-radius: 0.25rem;
+  outline: none;
 }

@@ -15,18 +15,22 @@ import { Cursor } from "@/components/Cursor";
 import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 
-export function MapComponent(): JSX.Element {
+interface MapComponentProps {
+  onSavePoi?: (poi: PoiInfo) => void;
+}
+
+interface PoiInfo {
+  position: google.maps.LatLngLiteral;
+  name: string;
+  address: string;
+  website?: string;
+  photoUrl?: string | null;
+}
+
+export function MapComponent({ onSavePoi }: MapComponentProps): JSX.Element {
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   const [infoWindowShown, setInfoWindowShown] = useState(false);
   const [markerRef, marker] = useAdvancedMarkerRef();
-
-  interface PoiInfo {
-    position: google.maps.LatLngLiteral;
-    name: string;
-    address: string;
-    website?: string;
-    photoUrl?: string | null;
-  }
 
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
   const [zoom, setZoom] = useState(10);
@@ -44,47 +48,48 @@ export function MapComponent(): JSX.Element {
     setPoiInfo(null);
   }, []);
 
-  const fetchPlaceDetails = useCallback(
-    (placeId: string, latLng: google.maps.LatLngLiteral) => {
-      setPoiInfo(null);
-      const service = new google.maps.places.PlacesService(
-        document.createElement("div")
-      );
-      service.getDetails({ placeId }, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-          setPoiInfo({
-            position: latLng,
-            name: place.name || "Unknown Place",
-            address: place.formatted_address || "No address available",
-            website: place.website,
-            photoUrl: place.photos?.[0]?.getUrl() || null,
-          });
-        }
-      });
-    },
-    []
-  );
+  const fetchPlaceDetails = useCallback((placeId: string) => {
+    setPoiInfo(null);
+    const service = new google.maps.places.PlacesService(
+      document.createElement("div")
+    );
+    service.getDetails({ placeId }, (place, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+        setPoiInfo({
+          position: {
+            lat: place.geometry?.location?.lat() || 0,
+            lng: place.geometry?.location?.lng() || 0,
+          },
+          name: place.name || "Unknown Place",
+          address: place.formatted_address || "No address available",
+          website: place.website,
+          photoUrl: place.photos?.[0]?.getUrl() || null,
+        });
+      }
+    });
+  }, []);
 
   const handleMapClick = useCallback(
     (e: MapMouseEvent) => {
       const { detail } = e;
       if (detail.placeId && detail.latLng) {
         e.stop();
-        fetchPlaceDetails(detail.placeId, {
-          lat:
-            detail.latLng instanceof google.maps.LatLng
-              ? detail.latLng.lat()
-              : detail.latLng.lat,
-          lng:
-            detail.latLng instanceof google.maps.LatLng
-              ? detail.latLng.lng()
-              : detail.latLng.lng,
-        });
+        fetchPlaceDetails(detail.placeId);
       } else {
         setPoiInfo(null);
       }
     },
     [fetchPlaceDetails]
+  );
+
+  const handleSavePoi = useCallback(
+    (poi: PoiInfo) => {
+      if (onSavePoi) {
+        onSavePoi(poi);
+        handleInfoWindowClose();
+      }
+    },
+    [onSavePoi, handleInfoWindowClose]
   );
 
   // SearchBox Component
@@ -126,7 +131,7 @@ export function MapComponent(): JSX.Element {
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        if (!place.geometry || !place.geometry.location) return;
+        if (!place.geometry?.location) return;
         if (map) {
           const latLng = {
             lat: place.geometry.location.lat(),
@@ -135,7 +140,7 @@ export function MapComponent(): JSX.Element {
           map.panTo(latLng);
           map.setZoom(15);
           if (place.place_id) {
-            fetchPlaceDetails(place.place_id, latLng);
+            fetchPlaceDetails(place.place_id);
           }
         }
       });
@@ -148,7 +153,7 @@ export function MapComponent(): JSX.Element {
           google.maps.event.clearListeners(map, "bounds_changed");
         }
       };
-    }, [map, fetchPlaceDetails]);
+    }, [fetchPlaceDetails, map]);
 
     return (
       <div className="search-box">
@@ -296,10 +301,10 @@ export function MapComponent(): JSX.Element {
                     </a>
                   )}
                   <button
-                    onClick={() => alert("Button clicked!")}
-                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition duration-200"
+                    onClick={() => handleSavePoi(poiInfo)}
+                    className="w-full py-2 px-4 bg-[#e56f5f] hover:bg-[#e56f5f]/90 text-white text-sm font-medium rounded-lg transition duration-200"
                   >
-                    Custom Button
+                    Save Location
                   </button>
                 </div>
               </div>
