@@ -6,6 +6,19 @@ import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import dynamic from "next/dynamic";
 
+const CreateRandomSessionButton = dynamic(
+  () =>
+    import("@/components/CreateRandomSessionButton").then(
+      (mod) => mod.CreateRandomSessionButton
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-12 bg-gray-100 rounded-lg animate-pulse" />
+    ),
+  }
+);
+
 export default function StartPlanningPage() {
   const [city, setCity] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
@@ -16,14 +29,6 @@ export default function StartPlanningPage() {
     e.preventDefault();
     console.log({ city, date });
   };
-
-  const CreateRandomSessionButton = dynamic(
-    () =>
-      import("@/components/CreateRandomSessionButton").then(
-        (mod) => mod.CreateRandomSessionButton
-      ),
-    { ssr: false }
-  );
 
   return (
     <div className="container mx-auto p-8 max-w-xl">

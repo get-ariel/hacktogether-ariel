@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Hack Together Ariel",
-  description: "",
+  title: "TripSync",
+  description: "Plan Your Next Adventure Together",
 };
 
 export default function RootLayout({
