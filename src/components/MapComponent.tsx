@@ -148,7 +148,7 @@ export function MapComponent(): JSX.Element {
           google.maps.event.clearListeners(map, "bounds_changed");
         }
       };
-    }, [map]);
+    }, [map, fetchPlaceDetails]);
 
     return (
       <div className="search-box">
