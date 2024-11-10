@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import { usePathname } from "next/navigation";
 
 interface TripLocation {
   id: string;
@@ -476,6 +478,25 @@ export function DashboardComponent() {
     setTripTitle(`${tripCity} Trip ✈️`);
   }, [tripCity, setTripTitle]);
 
+  // const { toast } = useToast();
+  const pathname = usePathname();
+
+  const handleShareTrip = () => {
+    const currentUrl = window.location.href;
+    const joinUrl = currentUrl.replace("/dashboard", "/join-session");
+
+    navigator.clipboard
+      .writeText(joinUrl)
+      .then(() => {
+        toast.success(
+          "Link copied! Share this link with your friends to plan together"
+        );
+      })
+      .catch(() => {
+        toast.error("Failed to copy link. Please try again");
+      });
+  };
+
   return (
     <div className="flex h-screen bg-background">
       {/* Left Sidebar */}
@@ -526,7 +547,11 @@ export function DashboardComponent() {
               </div>
             ))}
           </div>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleShareTrip}
+          >
             <Share2 className="mr-2 h-4 w-4" />
             Share Trip
           </Button>
