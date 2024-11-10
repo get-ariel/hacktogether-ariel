@@ -16,7 +16,7 @@ export default function JoinSessionContent() {
     if (typeof window !== "undefined") {
       const search = window.location.search;
       const hash = window.location.hash;
-      return `${search.slice(1)}${hash}`.replace("#", "&");
+      return `${search.slice(1)}${hash}`;
     }
     return "";
   };
@@ -49,7 +49,7 @@ export default function JoinSessionContent() {
         <Button
           type="submit"
           onClick={joinSession}
-          className="w-full bg-[#e56f5f] hover:bg-[#e56f5f]/90 text-white"
+          className="w-full bg-primary hover:bg-primary/90 text-white"
         >
           Join
         </Button>
