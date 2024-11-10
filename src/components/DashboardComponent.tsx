@@ -152,11 +152,13 @@ function DateRangeSelector({
 }
 
 export function DashboardComponent() {
-  const [userName, userNamesPerUser] =
+  const [userName, setUserNames, userNamesPerUser] =
     useStateTogetherWithPerUserValues<string>(
       "user-names",
       localStorage.getItem("userName") || "Anonymous"
     );
+
+  console.log(userName);
 
   const [tripDates, setTripDates] = useStateTogether<{
     start: string;
@@ -444,7 +446,10 @@ export function DashboardComponent() {
     }
   };
 
-  const initialCoordinates = {
+  const [coordinates] = useStateTogether<{
+    lat: number;
+    lng: number;
+  }>("trip-coordinates", {
     lat: (() => {
       try {
         const stored = localStorage.getItem("tripDetails");
@@ -465,7 +470,7 @@ export function DashboardComponent() {
         return -74.006; // Default to New York coordinates
       }
     })(),
-  };
+  });
 
   // Add helper function to get all active user names
   const getActiveUsers = () => {
@@ -606,7 +611,7 @@ export function DashboardComponent() {
             <div className="absolute inset-0">
               <MapComponent
                 onSavePoi={handleSavePoi}
-                initialCoordinates={initialCoordinates}
+                initialCoordinates={coordinates}
               />
             </div>
           </div>
