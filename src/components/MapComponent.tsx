@@ -32,6 +32,8 @@ export function MapComponent(): JSX.Element {
   const [poiInfo, setPoiInfo] = useState<PoiInfo | null>(null);
   const [zoom, setZoom] = useState(10);
 
+  const [poiMarkerRef, poiMarker] = useAdvancedMarkerRef(); // Added reference for POI marker
+
   const handleZoomChanged = useCallback((e: MapCameraChangedEvent) => {
     setZoom(e.detail.zoom || 10);
   }, []);
@@ -45,23 +47,16 @@ export function MapComponent(): JSX.Element {
     setPoiInfo(null);
   }, []);
 
-  const handleMapClick = useCallback((e: MapMouseEvent) => {
-    const { detail } = e;
-
-    if (detail.placeId && detail.latLng) {
-      // Close any existing InfoWindow first
+  const fetchPlaceDetails = useCallback(
+    (placeId: string, latLng: google.maps.LatLngLiteral) => {
       setPoiInfo(null);
-
-      // Prevent the default info window from appearing
-      e.stop();
-      const service = new google.maps.places.PlacesService(e.map);
-      service.getDetails({ placeId: detail.placeId }, (place, status) => {
+      const service = new google.maps.places.PlacesService(
+        document.createElement("div")
+      );
+      service.getDetails({ placeId }, (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && place) {
           setPoiInfo({
-            position: {
-              lat: detail.latLng!.lat,
-              lng: detail.latLng!.lng,
-            },
+            position: latLng,
             name: place.name || "Unknown Place",
             address: place.formatted_address || "No address available",
             website: place.website,
@@ -69,11 +64,31 @@ export function MapComponent(): JSX.Element {
           });
         }
       });
-    } else {
-      // Handle non-POI clicks if needed
-      setPoiInfo(null);
-    }
-  }, []);
+    },
+    []
+  );
+
+  const handleMapClick = useCallback(
+    (e: MapMouseEvent) => {
+      const { detail } = e;
+      if (detail.placeId && detail.latLng) {
+        e.stop();
+        fetchPlaceDetails(detail.placeId, {
+          lat:
+            detail.latLng instanceof google.maps.LatLng
+              ? detail.latLng.lat()
+              : detail.latLng.lat,
+          lng:
+            detail.latLng instanceof google.maps.LatLng
+              ? detail.latLng.lng()
+              : detail.latLng.lng,
+        });
+      } else {
+        setPoiInfo(null);
+      }
+    },
+    [fetchPlaceDetails]
+  );
 
   // SearchBox Component
   function SearchBox() {
@@ -90,7 +105,7 @@ export function MapComponent(): JSX.Element {
       const autocomplete = new google.maps.places.Autocomplete(
         inputRef.current!,
         {
-          fields: ["geometry", "name", "formatted_address"],
+          fields: ["geometry", "name", "formatted_address", "place_id"],
         }
       );
       autocompleteRef.current = autocomplete;
@@ -99,8 +114,15 @@ export function MapComponent(): JSX.Element {
         const place = autocomplete.getPlace();
         if (!place.geometry || !place.geometry.location) return;
         if (map) {
-          map.panTo(place.geometry.location);
+          const latLng = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+          };
+          map.panTo(latLng);
           map.setZoom(15);
+          if (place.place_id) {
+            fetchPlaceDetails(place.place_id, latLng);
+          }
         }
       });
 
@@ -110,7 +132,7 @@ export function MapComponent(): JSX.Element {
           google.maps.event.clearInstanceListeners(autocompleteRef.current);
         }
       };
-    }, [map]);
+    }, [map, fetchPlaceDetails]);
 
     return (
       <div className="search-box">
@@ -133,51 +155,38 @@ export function MapComponent(): JSX.Element {
           className="hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         />
         <style jsx global>{`
-          /* Autocomplete container */
           .pac-container {
             border-radius: 8px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             font-family: system-ui, -apple-system, sans-serif;
-            margin-top: 8px;
-            padding: 8px 0;
-            background-color: white;
+            margin-top: 4px;
           }
-
-          /* Individual suggestion items */
           .pac-item {
             padding: 8px 16px;
-            font-size: 14px;
             cursor: pointer;
+            font-size: 14px;
             transition: background-color 0.2s ease;
           }
-
           .pac-item:hover {
             background-color: #f3f4f6;
           }
-
-          /* Main text in suggestions */
+          .pac-item-selected {
+            background-color: #e5e7eb;
+          }
+          .pac-icon {
+            margin-right: 12px;
+          }
           .pac-item-query {
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 14px;
             color: #1f2937;
           }
-
-          /* Secondary text in suggestions */
-          .pac-item > span:not(.pac-item-query) {
-            color: #6b7280;
-          }
-
-          /* Matched text highlighting */
           .pac-matched {
             font-weight: 600;
-            color: #2563eb;
           }
-
-          /* Remove the Google Powered logo */
-          .pac-logo:after {
-            display: none;
+          .pac-secondary-text {
+            color: #6b7280;
+            font-size: 13px;
           }
         `}</style>
       </div>
@@ -202,6 +211,7 @@ export function MapComponent(): JSX.Element {
       >
         <Cursor />
 
+        {/* Initial Marker */}
         <AdvancedMarker
           position={{ lat: 38.736946, lng: -9.142685 }}
           onClick={handleMarkerClick}
@@ -233,18 +243,18 @@ export function MapComponent(): JSX.Element {
           </InfoWindow>
         )}
 
+        {/* POI Marker and InfoWindow */}
         {poiInfo && (
-          <AdvancedMarker position={poiInfo.position}>
-            <Pin
-              background="#FF0000"
-              borderColor="#B20000"
-              glyphColor="#FFFFFF"
-              scale={zoom > 12 ? 1.3 : 0.8}
-            />
-            <InfoWindow
-              position={poiInfo.position}
-              onClose={handleInfoWindowClose}
-            >
+          <>
+            <AdvancedMarker position={poiInfo.position} ref={poiMarkerRef}>
+              <Pin
+                background="#FF0000"
+                borderColor="#B20000"
+                glyphColor="#FFFFFF"
+                scale={zoom > 12 ? 1.3 : 0.8}
+              />
+            </AdvancedMarker>
+            <InfoWindow anchor={poiMarker} onClose={handleInfoWindowClose}>
               <div className="w-72">
                 <h3 className="font-bold text-lg text-gray-800">
                   {poiInfo.name}
@@ -281,7 +291,7 @@ export function MapComponent(): JSX.Element {
                 </div>
               </div>
             </InfoWindow>
-          </AdvancedMarker>
+          </>
         )}
       </Map>
     </APIProvider>
