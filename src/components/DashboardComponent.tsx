@@ -667,8 +667,7 @@ export function DashboardComponent() {
                   size="icon"
                   onClick={handlePreviousDay}
                   disabled={
-                    format(subDays(selectedDate, 1), "yyyy-MM-dd") <
-                    tripDates.start
+                    format(selectedDate, "yyyy-MM-dd") <= tripDates.start
                   }
                 >
                   <ChevronLeft className="h-4 w-4" />
