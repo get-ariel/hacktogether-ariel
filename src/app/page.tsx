@@ -7,6 +7,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById('features');
+    featuresSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Floating Icons Background - Much higher opacity */}
@@ -96,10 +101,16 @@ export default function LandingPage() {
               </p>
 
               <div className="flex gap-4 mt-8">
-                <Button size="lg" className="bg-primary text-white hover:bg-primary/90">
-                  Start Planning Now
-                </Button>
-                <Button size="lg" variant="outline">
+                <Link href="/start-planning">
+                  <Button size="lg" className="bg-primary text-white hover:bg-primary/90">
+                    Start Planning Now
+                  </Button>
+                </Link>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  onClick={scrollToFeatures}
+                >
                   See How It Works
                 </Button>
               </div>
@@ -108,7 +119,7 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section - Updated design */}
-        <section className="w-full py-24 lg:py-32 bg-foreground/[0.02]">
+        <section id="features" className="w-full py-24 lg:py-32 bg-foreground/[0.02] scroll-mt-20">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
               Why Choose TripSync?
